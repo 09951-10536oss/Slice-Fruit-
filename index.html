@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Slice Fruit</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;800;900&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#24140a;touch-action:none;user-select:none;-webkit-user-select:none;font-family:"Prompt",system-ui,sans-serif;color:#fff}
+canvas{position:fixed;inset:0;width:100%;height:100%}
+#hud{position:fixed;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 0;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;transition:.3s;opacity:0;transform:translateY(-20px)}
+#hud.on{opacity:1;transform:none}
+#sc{font-size:38px;font-weight:900;text-shadow:0 3px 0 #7a2a00,0 0 14px #000}
+#sc small{display:block;font-size:14px;font-weight:600;color:#ffd54a}
+#hr{font-size:26px;text-align:right;text-shadow:0 2px 4px #000}
+#pb{pointer-events:auto;background:rgba(0,0,0,.45);border:2px solid #fff6;color:#fff;border-radius:50%;width:42px;height:42px;font-size:18px;margin-top:4px}
+#tbw{position:fixed;left:14px;right:14px;top:calc(72px + env(safe-area-inset-top,0px));height:8px;background:#0006;border-radius:9px;overflow:hidden;opacity:0;transition:.3s}
+#tbw.on{opacity:1}
+#tb{height:100%;width:100%;background:linear-gradient(90deg,#7cff6b,#ffe14a);border-radius:9px}
+#tb.lo{background:#ff3b3b;animation:pl .5s infinite}
+@keyframes pl{50%{opacity:.4}}
+.scr{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:10px;padding:64px 20px 30px;touch-action:pan-y;background:radial-gradient(circle at 50% 40%,#0000 20%,#1a0c05cc);opacity:0;transform:scale(.92);pointer-events:none;transition:opacity .35s,transform .35s;overflow:auto;text-align:center}
+.scr.on{opacity:1;transform:none}
+.scr.on .b,.scr.on .card button{pointer-events:auto}
+.logo{line-height:.95;margin-bottom:10px;filter:drop-shadow(0 8px 10px #0009)}
+.logo div{white-space:nowrap}
+.logo span{display:inline-block;font-size:clamp(50px,17vw,116px);font-weight:900;color:#ffd54a;-webkit-text-stroke:3px #7a2a00;text-shadow:0 6px 0 #c2410c;animation:bob 1.7s ease-in-out infinite;animation-delay:calc(var(--i)*.11s)}
+.logo .r span{color:#ff5a6e;text-shadow:0 6px 0 #a3102a}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg) scale(1.07)}}
+.em{font-size:56px;display:inline-block;animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.b{pointer-events:none;background:linear-gradient(#ff7a2a,#e8481c);color:#fff;border:0;border-radius:50px;padding:14px 38px;font:900 22px Prompt,sans-serif;box-shadow:0 6px 0 #8f2508,0 10px 18px #0006;transition:transform .1s}
+.b:active{transform:translateY(4px);box-shadow:0 2px 0 #8f2508}
+.b.big{font-size:30px;padding:18px 60px;animation:pulse 1.3s infinite}
+.b.g{background:linear-gradient(#4ade80,#16a34a);box-shadow:0 6px 0 #0d6b30,0 10px 18px #0006}
+.b.s{font-size:16px;padding:9px 22px;background:linear-gradient(#5b6b8a,#3b475f);box-shadow:0 4px 0 #222c40}
+@keyframes pulse{50%{transform:scale(1.07)}}
+.coin{background:#0007;border:2px solid #ffd54a;border-radius:30px;padding:5px 16px;font-weight:800;color:#ffd54a}
+h2{margin:0;font-size:30px;text-shadow:0 3px 0 #7a2a00}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;width:min(560px,100%)}
+.card{background:#2b1a0ecc;border:2px solid #ffffff30;border-radius:18px;padding:12px;animation:pop .4s backwards}
+.card:nth-child(2){animation-delay:.07s}.card:nth-child(3){animation-delay:.14s}.card:nth-child(4){animation-delay:.21s}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.card.eq{border-color:#4ade80;box-shadow:0 0 16px #4ade8080}
+.card .ic{font-size:36px}.card b{display:block;font-size:18px}.card small{display:block;opacity:.8;font-size:12px;margin:3px 0 8px;min-height:32px}
+.card button{pointer-events:none;border:0;border-radius:30px;padding:8px 18px;background:#e8481c;color:#fff;font:800 14px Prompt;width:100%}
+.card button.d{background:#555}
+.sw{height:10px;border-radius:9px;margin:10px 0}.rb{background:linear-gradient(90deg,red,orange,yellow,lime,cyan,violet,red);background-size:200%;animation:sh 2s linear infinite}
+@keyframes sh{to{background-position:200%}}
+.bk{position:fixed;left:14px;top:calc(12px + env(safe-area-inset-top,0px));z-index:5}
+.card.lk{opacity:.7;filter:grayscale(.7)}.card.lk small{color:#ffd54a}
+#ban{z-index:9;position:fixed;left:0;right:0;top:32%;text-align:center;font-size:clamp(40px,14vw,90px);font-weight:900;color:#ffd54a;-webkit-text-stroke:3px #7a2a00;pointer-events:none;opacity:0}
+#ban.go{animation:ban 1.2s ease-out}
+@keyframes ban{0%{opacity:0;transform:scale(.3)}20%{opacity:1;transform:scale(1.2)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+#res .t{font-size:60px;animation:pop .5s}
+#fl{position:fixed;inset:0;background:#f33;opacity:0;pointer-events:none}
+#fl.go{animation:fl .5s}@keyframes fl{0%{opacity:.5}100%{opacity:0}}
+</style></head><body>
+<canvas id="c"></canvas><div id="fl"></div>
+<div id="hud"><div id="sc"><span id="sv">0</span><small id="cn">🪙 0</small></div><div style="display:flex;gap:10px"><div id="hr"></div><button id="pb" onclick="pause()">⏸</button></div></div>
+<div id="tbw"><div id="tb"></div></div><div id="ban"></div>
+
+<div class="scr on" id="title">
+ <div class="logo"><div><span>S</span><span>L</span><span>I</span><span>C</span><span>E</span></div><div class="r"><span>F</span><span>R</span><span>U</span><span>I</span><span>T</span> <span class="em">🍉</span></div></div>
+ <button class="b big" onclick="go('modes')">▶ เริ่มเกม</button>
+ <button class="b g" onclick="go('shop');shop()">🛒 ร้านค้า</button>
+ <div style="display:flex;gap:8px;align-items:center"><span class="coin" id="c1"></span><button class="b s" onclick="S.mute^=1;save();mu()" id="mb"></button></div>
+</div>
+<div class="scr" id="modes"><button class="b s bk" onclick="go('title')">← กลับ</button><h2>เลือกโหมด</h2><div class="grid" id="mg"></div><button class="b s" onclick="go('title')">← กลับ</button></div>
+<div class="scr" id="shopS"><button class="b s bk" onclick="go('title')">← กลับ</button><h2>🛒 ร้านค้าลายฟัน</h2><span class="coin" id="c2"></span><div class="grid" id="sg"></div><button class="b s" onclick="go('title')">← กลับ</button></div>
+<div class="scr" id="res"><div class="t" id="rt"></div><h2 id="rh"></h2><div id="rb" style="line-height:1.7"></div>
+ <button class="b g" onclick="play(G.k)">↻ เล่นอีกครั้ง</button><button class="b s" onclick="go('modes')">เลือกโหมด</button><button class="b s" onclick="go('title')">หน้าหลัก</button></div>
+<div class="scr" id="pau"><h2>⏸ หยุดชั่วคราว</h2><button class="b g" onclick="resume()">▶ เล่นต่อ</button><button class="b s" onclick="quit()">ออกไปหน้าหลัก</button></div>
+
+<script>
+const $=i=>document.getElementById(i),cv=$('c'),x=cv.getContext('2d'),R=(a,b)=>a+Math.random()*(b-a);
+let W,H;function rs(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;x.setTransform(d,0,0,d,0,0)}addEventListener('resize',rs);rs();
+let S={coins:0,best:{},own:['classic'],eq:'classic',mute:0,un:['practice']};
+try{Object.assign(S,JSON.parse(localStorage.getItem('sf1')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('sf1',JSON.stringify(S))}catch(e){}};
+let AC;function snd(f,d=.12,t='sine',v=.1,f2){if(S.mute)return;try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type=t;o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g).connect(AC.destination);o.start();o.stop(n+d)}catch(e){}}
+const FR=[['🍉','#ff3b4e'],['🍊','#ffa726'],['🍎','#ff5252'],['🍋','#fff176'],['🥝','#8bc34a'],['🍍','#ffd54f'],['🍇','#9c27b0'],['🍓','#ff1744']];
+const M={
+practice:{n:'ฝึกเล่น',i:'🌱',d:'ไม่มีระเบิด ไม่จำกัดเวลา ฝึกมือได้เต็มที่',t:0,l:0,b:0,sp:1.1,cm:0,bo:0,win:0},
+normal:{n:'ธรรมดา',i:'🍊',d:'90 วิ · 3 ชีวิต · โดนระเบิดเสีย 1 ชีวิต',t:90,l:3,b:.1,sp:1,cm:1,bo:1,win:60},
+hard:{n:'ยาก',i:'🔥',d:'75 วิ · 2 ชีวิต · โดนระเบิดแพ้ทันที',t:75,l:2,b:.2,sp:.75,cm:2,bo:2,win:150},
+challenge:{n:'ท้าทาย',i:'💀',d:'120 วิ · ห้ามโดนระเบิดเลย! รอดจนหมดเวลา = ชนะ',t:120,l:0,b:.3,sp:.55,cm:4,bo:2,win:400}};
+const SK=[{id:'classic',n:'ดาบฟ้า',p:0,c:['#5ec8ff','#fff']},{id:'fire',n:'ไฟลุก',p:150,c:['#ff5a00','#ffe066']},{id:'ice',n:'น้ำแข็ง',p:300,c:['#00e5ff','#e0ffff']},{id:'neon',n:'นีออน',p:450,c:['#39ff14','#eaffd0']},{id:'sakura',n:'ซากุระ',p:650,c:['#ff6fae','#ffe0ef'],sp:1},{id:'gold',n:'ทองคำ',p:1000,c:['#ffb300','#fff3b0'],sp:1},{id:'rainbow',n:'สายรุ้ง',p:1500,c:['#f0f','#fff'],sp:1}];
+let st='menu',G={k:'normal'},objs=[],hv=[],pt=[],spl=[],tx=[],tr=[],dn=0,swn=0,shk=0,slow=0,fren=0,spT=0,last=0,amT=0,pw=0;
+function go(id){['title','modes','shopS','res','pau'].forEach(s=>$(s).classList.toggle('on',s==(id=='shop'?'shopS':id)));if(id=='modes')mg();cu();snd(500,.08,'triangle')}
+function cu(){$('c1').textContent=$('c2').textContent='🪙 '+S.coins;mu()}
+function mu(){$('mb').textContent=S.mute?'🔇 ปิดเสียง':'🔊 เปิดเสียง'}
+const ORD=['practice','normal','hard','challenge'],REQ={normal:'ฟันผลไม้ 30 ลูกในโหมดฝึกเล่น',hard:'ชนะโหมดธรรมดา โดยไม่โดนระเบิดเลย',challenge:'ชนะโหมดยาก โดยไม่โดนระเบิดเลย'};
+function unlock(k){if(S.un.includes(k))return;S.un.push(k);save();ban('🔓 ปลดล็อก '+M[k].n+'!');snd(600,.5,'triangle',.12,1500)}
+function mg(){$('mg').innerHTML=ORD.map(k=>{const m=M[k],u=S.un.includes(k);return`<div class="card ${u?'':'lk'}"><div class="ic">${u?m.i:'🔒'}</div><b>${m.n}</b><small>${u?m.d+(m.cm?'<br>🪙 x'+m.cm:'')+(S.best[k]?'<br>🏆 '+S.best[k]:''):'ปลดล็อก: '+REQ[k]}</small><button class="${u?'':'d'}" onclick="play('${k}')">${u?'เล่น':'🔒 ล็อกอยู่'}</button></div>`}).join('')}
+function shop(){cu();$('sg').innerHTML=SK.map(s=>{const o=S.own.includes(s.id),e=S.eq==s.id;return`<div class="card ${e?'eq':''}"><b>${s.n}</b><div class="sw ${s.id=='rainbow'?'rb':''}" style="${s.id=='rainbow'?'':`background:linear-gradient(90deg,transparent,${s.c[0]},${s.c[1]})`}"></div><small>${s.sp?'✨ มีประกายระยิบ':'ลายฟันพื้นฐาน'}</small><button class="${e?'d':''}" onclick="buy('${s.id}')">${e?'✔ ใช้อยู่':o?'ใช้งาน':'🪙 '+s.p}</button></div>`}).join('')}
+function buy(id){const s=SK.find(k=>k.id==id);if(!S.own.includes(id)){if(S.coins<s.p){snd(150,.2,'sawtooth');ban('เหรียญไม่พอ',.5);return}S.coins-=s.p;S.own.push(id);snd(800,.3,'triangle',.12,1600)}S.eq=id;save();shop()}
+function ban(t,sc){const b=$('ban');b.textContent=t;b.style.fontSize='';b.classList.remove('go');void b.offsetWidth;b.classList.add('go')}
+function hud(){$('sv').textContent=G.sc;$('cn').textContent='🪙 '+G.cn;const m=G.m;$('hr').textContent=m.l?'❤️'.repeat(G.l)+'🖤'.repeat(m.l-G.l):m.bo>1?'💣 ห้ามโดน':'';if(m.t){$('tb').style.width=(G.left/m.t*100)+'%';$('tb').classList.toggle('lo',G.left<10)}}
+function play(k){if(!S.un.includes(k)){snd(150,.2,'sawtooth');ban('🔒 ยังไม่ปลดล็อก');return}const m=M[k];G={k,m,sc:0,cn:0,l:m.l,left:m.t,el:0,cut:0,bh:0};objs=[];hv=[];spl=[];tx=[];fren=slow=0;spT=1.6;go('none');$('hud').classList.add('on');$('tbw').classList.toggle('on',!!m.t);hud();ban('พร้อม? ลุย!');st='play';snd(400,.4,'triangle',.1,900)}
+function pause(){if(st!='play')return;st='pause';go('pau')}
+function resume(){go('none');st='play'}
+function quit(){st='menu';$('hud').classList.remove('on');$('tbw').classList.remove('on');go('title')}
+addEventListener('visibilitychange',()=>document.hidden&&pause());
+function end(win){if(st=='end')return;st='end';const m=G.m;let bonus=win?m.win:0,coins=G.cn+bonus;S.coins+=coins;const nb=G.sc>(S.best[G.k]||0);if(nb&&G.k!='practice')S.best[G.k]=G.sc;let un='';const nx=ORD[ORD.indexOf(G.k)+1];if(win&&nx&&!S.un.includes(nx)){if(G.bh)un='<br>ชนะแล้ว แต่โดนระเบิด ต้องชนะแบบไม่โดนระเบิดถึงจะปลดล็อกด่านต่อไป';else{S.un.push(nx);un='<br>🔓 ปลดล็อกโหมด '+M[nx].n+'!'}}save();
+$('hud').classList.remove('on');$('tbw').classList.remove('on');
+$('rt').textContent=win?'🏆':'💥';$('rh').textContent=win?'ชนะแล้ว!':(m.t?'จบเกม':'จบการฝึก');
+$('rb').innerHTML=`คะแนน <b style="font-size:28px;color:#ffd54a">${G.sc}</b>${nb&&G.k!='practice'?' 🎉 สถิติใหม่!':''}<br>ผลไม้ที่ฟัน ${G.cut} ลูก<br>🪙 ได้รับ ${coins}${bonus?' (โบนัสชนะ +'+bonus+')':''}${un}`;
+if(win)snd(600,.6,'triangle',.12,1400);setTimeout(()=>go('res'),win?400:900)}
+function spawn(k,am){const r=(Math.max(.8,Math.min(1.25,W/520)))*(k=='b'?30:34),xx=R(W*.12,W*.88),f=FR[R(0,FR.length)|0];objs.push({x:xx,y:H+50,vx:(W/2-xx)*.006+R(-2,2),vy:-H*R(.0175,.0205),g:H*.00034,r,rot:0,vr:R(-.1,.1),k,e:k=='b'?'💣':k=='bn'?'🍌':k=='ice'?'🧊':f[0],c:k=='ice'?'#8ff':k=='bn'?'#ffe135':f[1],am})}
+function pick(){const m=G.m,r=Math.random();if(fren>0)return'f';if(m.bo&&r<Math.min(.4,m.b+G.el/1400))return'b';if(r>.965)return'bn';if(r>.94)return'ice';return'f'}
+function wave(){const d=Math.min(1,G.el/(G.m.t||120)),n=1+(Math.random()*(2+d*3)|0);for(let i=0;i<n;i++)setTimeout(()=>st=='play'&&spawn(pick()),i*110)}
+function txt(t,X,Y,c){tx.push({t,x:X,y:Y,l:1,c:c||'#fff'})}
+function burst(o,n,c){for(let i=0;i<n;i++)pt.push({x:o.x,y:o.y,vx:R(-9,9),vy:R(-11,5),l:1,c,r:R(2,6)})}
+function hit(o,a,b){o.cut=1;const an=Math.atan2(b.y-a.y,b.x-a.x),pl=st=='play',m=G.m;
+if(o.k=='b'){if(!pl){o.cut=0;return}shk=26;$('fl').classList.remove('go');void $('fl').offsetWidth;$('fl').classList.add('go');G.bh=1;burst(o,50,'#ff9800');snd(90,.5,'sawtooth',.2,30);fren=0;
+if(m.bo==2){G.left=Math.min(G.left,999);end(0)}else{G.l--;hud();txt('💥',o.x,o.y);if(G.l<=0)end(0)}return}
+snd(700+R(0,300),.1,'triangle',.09,200);
+if(o.k=='ice'){slow=4;txt('❄️ ช้าลง!',W/2,H*.3,'#8ff')}
+if(o.k=='bn'){fren=6;ban('🍌 บ้าคลั่ง!')}
+if(pl&&o.k!='b'){G.sc++;G.cut++;G.cn+=m.cm;swn++;hud();if(G.k=='practice'&&G.cut==30)unlock('normal')}
+for(let s=-1;s<=1;s+=2)hv.push({x:o.x,y:o.y,vx:o.vx+s*Math.sin(an)*4,vy:o.vy*.4-2,rot:o.rot,vr:s*R(.05,.14),a:an,s,r:o.r,e:o.e,g:o.g*1.1});
+burst(o,16,o.c);spl.push({x:o.x,y:o.y,r:o.r*R(1.1,1.6),c:o.c,l:1});
+if(pl)txt('+1',o.x,o.y-24)}
+function hitT(o,a,b){const dx=b.x-a.x,dy=b.y-a.y;let t=((o.x-a.x)*dx+(o.y-a.y)*dy)/(dx*dx+dy*dy||1);t=Math.max(0,Math.min(1,t));const px=a.x+t*dx-o.x,py=a.y+t*dy-o.y;return px*px+py*py<o.r*o.r}
+function P(e){return{x:e.clientX,y:e.clientY,t:performance.now()}}
+addEventListener('pointerdown',e=>{dn=1;swn=0;tr=[P(e)]});
+addEventListener('pointermove',e=>{if(!dn||st=='pause'||st=='end')return;const p=P(e),l=tr[tr.length-1];tr.push(p);if(tr.length>16)tr.shift();if((p.x-l.x)**2+(p.y-l.y)**2<14)return;
+const sk=SK.find(s=>s.id==S.eq);if(sk.sp)pt.push({x:p.x,y:p.y,vx:R(-2,2),vy:R(-2,2),l:1,c:sk.id=='rainbow'?`hsl(${R(0,360)},100%,70%)`:sk.c[1],r:R(1.5,4)});
+for(const o of objs)if(!o.cut&&hitT(o,l,p))hit(o,l,p)});
+function up(){if(dn&&swn>=3&&st=='play'){G.sc+=swn;G.cn+=swn;hud();ban('คอมโบ x'+swn+'!');snd(900,.3,'square',.06,1500)}dn=0;swn=0}
+addEventListener('pointerup',up);addEventListener('pointercancel',up);
+function drawE(e,r){x.font=r*2+'px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,0,r*.06)}
+function loop(t){let dt=Math.min(3,(t-last)/16.67||1);last=t;const rd=dt,live=st=='play'||st=='menu'||st=='end';
+if(slow>0)slow-=rd/60;const sl=slow>0?.4:1;if(st=='pause')dt=0;dt*=sl;
+x.save();if(shk>.5){x.translate(R(-shk,shk),R(-shk,shk));shk*=.88}
+const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#6e4c2b');g.addColorStop(1,'#33200f');x.fillStyle=g;x.fillRect(-40,-40,W+80,H+80);
+x.strokeStyle='#0002';x.lineWidth=2;for(let y=(pw+=.2*dt)%70-70;y<H;y+=70){x.beginPath();x.moveTo(0,y);x.lineTo(W,y);x.stroke()}
+if(slow>0){x.fillStyle='#4df3';x.fillRect(0,0,W,H)}
+for(const s of spl){x.globalAlpha=s.l*.5;x.fillStyle=s.c;x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fill();s.l-=.004*dt}x.globalAlpha=1;spl=spl.filter(s=>s.l>0);
+if(st=='play'){if(G.m.t){G.left-=rd/60;if(G.left<=0){G.left=0;hud();end(1)}}G.el+=rd/60;if(fren>0)fren-=rd/60;spT-=rd/60*sl;if(spT<=0){wave();spT=(fren>0?.3:R(.8,1.4))*G.m.sp*(1-Math.min(.35,G.el/300));}if(((G.el*60)|0)%6==0)hud()}
+else if(st=='menu'||st=='end'){amT-=rd/60;if(amT<=0){spawn('f',1);amT=R(.7,1.4)}}
+for(const o of objs){o.x+=o.vx*dt;o.y+=o.vy*dt;o.vy+=o.g*dt;o.rot+=o.vr*dt;
+if(!o.cut&&o.y>H+70&&o.vy>0){o.cut=1;if(!o.am&&st=='play'&&o.k!='b'&&o.k!='bn'&&o.k!='ice'&&G.m.l){G.l--;hud();txt('❌',Math.max(30,Math.min(W-30,o.x)),H-60,'#f55');snd(160,.25,'sawtooth');if(G.l<=0)end(0)}}
+if(o.cut&&o.y>H+70)o.dead=1}
+objs=objs.filter(o=>!o.cut);
+for(const o of objs){x.save();x.translate(o.x,o.y);x.rotate(o.rot);if(o.k=='b'){x.shadowColor='#f50';x.shadowBlur=14+Math.sin(t/60)*8}drawE(o.e,o.r);x.restore()}
+for(const h of hv){h.x+=h.vx*dt;h.y+=h.vy*dt;h.vy+=h.g*dt;h.rot+=h.vr*dt;x.save();x.translate(h.x,h.y);x.rotate(h.a+h.rot);x.beginPath();x.rect(h.s>0?0:-h.r*2,-h.r*2,h.r*2,h.r*4);x.clip();drawE(h.e,h.r);x.restore()}hv=hv.filter(h=>h.y<H+100);
+for(const p of pt){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.35*dt;p.l-=.025*dt;x.globalAlpha=Math.max(0,p.l);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()}x.globalAlpha=1;pt=pt.filter(p=>p.l>0);
+const n=performance.now();tr=tr.filter(p=>n-p.t<170);const sk=SK.find(s=>s.id==S.eq);
+for(let i=1;i<tr.length;i++){const a=tr[i-1],b=tr[i],k=i/tr.length,c0=sk.id=='rainbow'?`hsl(${(n/4+i*25)%360},100%,60%)`:sk.c[0];x.lineCap='round';x.shadowColor=c0;x.shadowBlur=18;x.strokeStyle=c0;x.globalAlpha=k;x.lineWidth=4+k*12;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();x.shadowBlur=0;x.strokeStyle=sk.c[1];x.lineWidth=1+k*4;x.stroke()}x.globalAlpha=1;
+if(fren>0){x.fillStyle='#ffd54a1f';x.fillRect(0,0,W,H)}
+x.font='900 26px Prompt,sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineWidth=4;x.strokeStyle='#000';
+for(const q of tx){x.globalAlpha=Math.max(0,q.l);x.fillStyle=q.c;x.strokeText(q.t,q.x,q.y);x.fillText(q.t,q.x,q.y);q.y-=.8*(dt||0);q.l-=.02*(dt||0)}tx=tx.filter(q=>q.l>0);x.globalAlpha=1;
+x.restore();requestAnimationFrame(loop)}
+cu();requestAnimationFrame(loop);
+</script></body></html>
